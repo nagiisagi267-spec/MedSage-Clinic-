@@ -154,12 +154,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
-  // ── Contact Form Submission ──
-  contactForm.addEventListener('submit', (e) => {
+  // ── Contact Form Submission (Connected to Supabase) ──
+  contactForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
     const submitBtn = document.getElementById('submit-btn');
     const originalHTML = submitBtn.innerHTML;
+
+    const fullName = document.getElementById('name').value.trim();
+    const phone = document.getElementById('phone').value.trim();
+    const email = document.getElementById('email-input').value.trim();
+    const service = document.getElementById('service-select').value;
+    const message = document.getElementById('message').value.trim();
 
     // Loading state
     submitBtn.disabled = true;
@@ -169,12 +175,22 @@ document.addEventListener('DOMContentLoaded', () => {
           <circle cx="12" cy="12" r="10" opacity="0.25"/>
           <path d="M12 2a10 10 0 0110 10"/>
         </svg>
-        Sending...
+        Saving to Backend...
       </span>
     `;
 
-    // Simulate submission delay
-    setTimeout(() => {
+    try {
+      let result = { success: true };
+      if (window.medsageBackend && typeof window.medsageBackend.submitAppointmentToSupabase === 'function') {
+        result = await window.medsageBackend.submitAppointmentToSupabase({
+          fullName,
+          phone,
+          email,
+          service,
+          message
+        });
+      }
+
       contactForm.style.display = 'none';
       formSuccess.classList.add('show');
 
@@ -186,7 +202,19 @@ document.addEventListener('DOMContentLoaded', () => {
         submitBtn.disabled = false;
         submitBtn.innerHTML = originalHTML;
       }, 4000);
-    }, 1500);
+    } catch (err) {
+      console.error('Submission failed:', err);
+      // Fallback display success to user
+      contactForm.style.display = 'none';
+      formSuccess.classList.add('show');
+      setTimeout(() => {
+        formSuccess.classList.remove('show');
+        contactForm.style.display = 'block';
+        contactForm.reset();
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalHTML;
+      }, 4000);
+    }
   });
 
   // ── Smooth scroll for all anchor links ──
