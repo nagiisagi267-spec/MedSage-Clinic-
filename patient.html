@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedSage Clinic — Patient Health Portal & Medical Records</title>
+  <meta name="description" content="Access your medical history, previous doctor checkups, active prescriptions, and appointment status securely at MedSage Clinic." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="patient.css" />
+</head>
+<body>
+
+  <!-- ===================== 1. PATIENT AUTHENTICATION SCREEN ===================== -->
+  <div class="auth-page-container" id="patientAuthSection">
+    <div class="auth-card">
+      <div class="auth-header">
+        <div class="logo-badge">🌿</div>
+        <h2>Patient Portal Access</h2>
+        <p>Log in to view your complete medical history & previous checkups</p>
+      </div>
+
+      <!-- Tab switch: Login vs Register -->
+      <div class="auth-toggle-tabs">
+        <button class="auth-toggle-btn active" id="tabBtnLogin">Patient Sign In</button>
+        <button class="auth-toggle-btn" id="tabBtnRegister">Create Account</button>
+      </div>
+
+      <!-- ── LOGIN FORM ── -->
+      <form id="patientLoginForm">
+        <div class="auth-form-field">
+          <label for="loginEmail">Email Address</label>
+          <input type="email" id="loginEmail" placeholder="your@email.com" value="fatima.ali@example.com" required autocomplete="username" />
+        </div>
+        <div class="auth-form-field">
+          <label for="loginPassword">Password</label>
+          <input type="password" id="loginPassword" placeholder="••••••••" value="Patient123!" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-auth-submit" id="btnSubmitLogin">
+          <span>Sign In to Patient Portal →</span>
+        </button>
+
+        <!-- Quick Demo Switcher -->
+        <div class="demo-account-hint">
+          <strong>Quick Demo Patient Logins:</strong>
+          <div style="display:flex;gap:8px;margin-top:6px;flex-wrap:wrap;">
+            <button type="button" class="btn-demo-fill" data-email="fatima.ali@example.com" style="background:#fff;border:1px solid #99f6e4;padding:4px 8px;border-radius:4px;font-size:0.75rem;cursor:pointer;font-weight:600;color:#0f766e;">
+              👤 Fatima Ali (B+)
+            </button>
+            <button type="button" class="btn-demo-fill" data-email="usman.raza@example.com" style="background:#fff;border:1px solid #99f6e4;padding:4px 8px;border-radius:4px;font-size:0.75rem;cursor:pointer;font-weight:600;color:#0f766e;">
+              👤 Usman Raza (O+)
+            </button>
+          </div>
+        </div>
+      </form>
+
+      <!-- ── REGISTRATION FORM ── -->
+      <form id="patientRegisterForm" style="display:none;">
+        <div class="auth-form-field">
+          <label for="regFullName">Full Legal Name *</label>
+          <input type="text" id="regFullName" placeholder="e.g. Ayesha Malik" required />
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="auth-form-field">
+            <label for="regPhone">Phone Number *</label>
+            <input type="tel" id="regPhone" placeholder="+92 3XX XXXXXXX" required />
+          </div>
+          <div class="auth-form-field">
+            <label for="regAge">Age (Years)</label>
+            <input type="number" id="regAge" placeholder="28" min="1" max="120" required />
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div class="auth-form-field">
+            <label for="regGender">Gender</label>
+            <select id="regGender">
+              <option value="Female">Female</option>
+              <option value="Male">Male</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="auth-form-field">
+            <label for="regBloodGroup">Blood Group</label>
+            <select id="regBloodGroup">
+              <option value="B+">B Positive (B+)</option>
+              <option value="O+">O Positive (O+)</option>
+              <option value="A+">A Positive (A+)</option>
+              <option value="AB+">AB Positive (AB+)</option>
+              <option value="B-">B Negative (B-)</option>
+              <option value="O-">O Negative (O-)</option>
+              <option value="A-">A Negative (A-)</option>
+              <option value="AB-">AB Negative (AB-)</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="auth-form-field">
+          <label for="regAllergies">Known Medical Allergies</label>
+          <input type="text" id="regAllergies" placeholder="e.g. Penicillin, Sulfa, None" />
+        </div>
+
+        <div class="auth-form-field">
+          <label for="regEmail">Email Address *</label>
+          <input type="email" id="regEmail" placeholder="your@email.com" required autocomplete="username" />
+        </div>
+        <div class="auth-form-field">
+          <label for="regPassword">Create Password *</label>
+          <input type="password" id="regPassword" placeholder="Minimum 6 characters" required autocomplete="new-password" />
+        </div>
+
+        <button type="submit" class="btn-auth-submit" id="btnSubmitRegister">
+          <span>Create Patient Account →</span>
+        </button>
+      </form>
+
+      <div style="text-align:center;margin-top:20px;">
+        <a href="index.html" style="font-size:0.85rem;color:var(--primary-700);font-weight:600;">← Back to Main Website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== 2. PATIENT DASHBOARD (ONCE LOGGED IN) ===================== -->
+  <div id="patientDashboardSection" style="display:none;">
+
+    <!-- Navbar -->
+    <header class="patient-nav">
+      <div class="container nav-inner">
+        <div class="patient-brand">
+          <div class="brand-badge">⚕️</div>
+          <div>
+            <h3>MedSage Clinic</h3>
+            <span>Patient Portal</span>
+          </div>
+        </div>
+
+        <div class="nav-user-actions">
+          <button class="btn-nav-logout" id="btnBookApptNav" style="background:var(--primary-50);color:var(--primary-700);font-weight:700;">
+            + Book Appointment
+          </button>
+          <div class="patient-profile-pill">
+            <div class="patient-avatar" id="navAvatar">FA</div>
+            <span class="patient-name-label" id="navPatientName">Fatima Ali</span>
+            <span class="blood-badge" id="navBloodBadge">B+</span>
+          </div>
+          <button class="btn-nav-logout" id="btnPatientLogout">Log Out</button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Welcome Hero Banner -->
+    <section class="patient-hero">
+      <div class="container hero-flex">
+        <div class="hero-welcome">
+          <h1 id="heroWelcomeText">Welcome back, Fatima! 👋</h1>
+          <p id="heroSubText">Track your medical checkups, doctor diagnoses, and active prescription regimens.</p>
+        </div>
+
+        <div class="hero-stats-row">
+          <div class="hero-stat-box">
+            <div class="stat-num" id="heroCheckupsCount">0</div>
+            <div class="stat-lbl">Previous Checkups</div>
+          </div>
+          <div class="hero-stat-box">
+            <div class="stat-num" id="heroApptsCount">0</div>
+            <div class="stat-lbl">Appointments</div>
+          </div>
+          <div class="hero-stat-box">
+            <div class="stat-num" id="heroBloodGroup" style="color:#5eead4;">B+</div>
+            <div class="stat-lbl">Blood Group</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Content Area -->
+    <main class="container patient-content">
+
+      <!-- Tab Switcher -->
+      <nav class="tab-nav-bar">
+        <button class="tab-nav-btn active" data-tab="tab-checkups">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+          <span>Previous Checkups & History</span>
+        </button>
+        <button class="tab-nav-btn" data-tab="tab-appointments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>My Appointments</span>
+        </button>
+        <button class="tab-nav-btn" data-tab="tab-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>My Health Profile</span>
+        </button>
+      </nav>
+
+      <!-- ── TAB 1: PREVIOUS CHECKUPS (MAIN FEATURE) ── -->
+      <section class="tab-pane active" id="tab-checkups">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <h2 style="font-size:1.35rem;color:var(--gray-900);">Your Clinical Consultation Records</h2>
+            <p style="font-size:0.88rem;color:var(--gray-500);">Complete medical checkups, vital signs measurements, and doctor prescriptions.</p>
+          </div>
+          <button class="btn-auth-submit" id="btnQuickBook" style="width:auto;padding:10px 18px;margin-top:0;">
+            + Book Follow-up Consultation
+          </button>
+        </div>
+
+        <div class="checkup-timeline" id="patientCheckupsList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ── TAB 2: MY APPOINTMENTS ── -->
+      <section class="tab-pane" id="tab-appointments">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+          <div>
+            <h2 style="font-size:1.35rem;color:var(--gray-900);">Scheduled & Past Appointments</h2>
+            <p style="font-size:0.88rem;color:var(--gray-500);">Live status tracking of your clinic visits.</p>
+          </div>
+          <button class="btn-auth-submit" id="btnNewAppointmentTab" style="width:auto;padding:10px 18px;margin-top:0;">
+            + Schedule New Appointment
+          </button>
+        </div>
+
+        <div class="patient-appts-grid" id="patientAppointmentsList">
+          <!-- Populated by JS -->
+        </div>
+      </section>
+
+      <!-- ── TAB 3: HEALTH PROFILE ── -->
+      <section class="tab-pane" id="tab-profile">
+        <div style="background:var(--white);border:1px solid var(--gray-200);border-radius:var(--radius-xl);padding:32px;max-width:680px;box-shadow:var(--shadow-sm);">
+          <h2 style="font-size:1.25rem;margin-bottom:6px;">Personal Medical Profile</h2>
+          <p style="font-size:0.88rem;color:var(--gray-500);margin-bottom:24px;">Your registered health credentials on file with MedSage Clinic.</p>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;">
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Full Name</span>
+              <p style="font-size:1.05rem;font-weight:700;color:var(--gray-900);" id="profFullName">—</p>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Contact Phone</span>
+              <p style="font-size:1.05rem;font-weight:700;color:var(--gray-900);" id="profPhone">—</p>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Email Address</span>
+              <p style="font-size:1rem;font-weight:600;color:var(--gray-900);" id="profEmail">—</p>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Age & Gender</span>
+              <p style="font-size:1rem;font-weight:600;color:var(--gray-900);" id="profAgeGender">—</p>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Blood Group</span>
+              <p style="font-size:1.1rem;font-weight:800;color:var(--danger);" id="profBloodGroup">—</p>
+            </div>
+            <div>
+              <span style="font-size:0.75rem;color:var(--gray-500);text-transform:uppercase;font-weight:700;">Known Medical Allergies</span>
+              <p style="font-size:1rem;font-weight:600;color:var(--gray-800);" id="profAllergies">—</p>
+            </div>
+          </div>
+
+          <div style="background:var(--primary-50);padding:14px 18px;border-radius:var(--radius-md);border:1px solid var(--primary-200);font-size:0.85rem;color:var(--primary-900);">
+            ℹ️ To make changes to your medical details or blood group, please consult the reception desk during your next clinic checkup.
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===================== MODAL: BOOK APPOINTMENT ===================== -->
+  <div class="modal-backdrop" id="patientBookingModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Schedule Clinic Appointment</h3>
+        <button class="modal-close-btn" id="btnCloseBookingModal">×</button>
+      </div>
+
+      <form id="patientDirectBookingForm">
+        <div class="modal-body">
+          <div style="margin-bottom:16px;background:var(--primary-50);padding:12px 16px;border-radius:var(--radius-md);font-size:0.85rem;color:var(--primary-900);">
+            Booking appointment as: <strong id="bookingPatientNameLabel">Fatima Ali</strong>
+          </div>
+
+          <div class="auth-form-field">
+            <label for="bookService">Select Medical Service</label>
+            <select id="bookService" required>
+              <option value="General Physician">General Physician Consultation</option>
+              <option value="Skin Treatment">Dermatology & Skin Treatment</option>
+              <option value="Vaccination">Vaccination & Immunization</option>
+              <option value="Lab Tests">Diagnostic Lab Tests</option>
+              <option value="Consultation">Specialist Consultation</option>
+              <option value="Emergency Care">Emergency Care</option>
+            </select>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+            <div class="auth-form-field">
+              <label for="bookDate">Preferred Date</label>
+              <input type="date" id="bookDate" required />
+            </div>
+            <div class="auth-form-field">
+              <label for="bookTime">Preferred Time Slot</label>
+              <select id="bookTime">
+                <option value="10:30 AM">10:30 AM</option>
+                <option value="11:30 AM">11:30 AM</option>
+                <option value="01:00 PM">01:00 PM</option>
+                <option value="03:00 PM">03:00 PM</option>
+                <option value="05:00 PM">05:00 PM</option>
+                <option value="07:00 PM">07:00 PM</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="auth-form-field">
+            <label for="bookMessage">Symptoms or Reason for Visit</label>
+            <textarea id="bookMessage" rows="3" placeholder="Describe symptoms, duration, or any questions for Dr. Ahmad Khan..."></textarea>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-nav-logout" id="btnCancelBooking">Cancel</button>
+          <button type="submit" class="btn-auth-submit" style="width:auto;margin-top:0;">Confirm Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== PRINTABLE PRESCRIPTION SLIP ===================== -->
+  <div id="printablePatientSlip" style="display:none;">
+    <div style="border:2px solid #0d9488;border-radius:12px;padding:30px;max-width:800px;margin:0 auto;font-family:'Inter',sans-serif;color:#1e293b;">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0d9488;padding-bottom:16px;margin-bottom:20px;">
+        <div>
+          <h1 style="font-size:24px;color:#0d9488;margin-bottom:2px;">MEDSAGE CLINIC</h1>
+          <p style="font-size:12px;color:#64748b;">Karim Buksh Plaza, Lahore, Pakistan | Tel: +92 300 1234567 | info@medsageclinic.com</p>
+        </div>
+        <div style="text-align:right;">
+          <h3 style="font-size:15px;margin-bottom:2px;">Dr. Ahmad Khan</h3>
+          <p style="font-size:11px;color:#64748b;">MBBS, FCPS (Medicine)<br/>Chief Medical Officer</p>
+        </div>
+      </div>
+
+      <div style="background:#f0fdfa;padding:12px 16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;font-size:13px;" id="patientSlipBar">
+        <!-- Filled by JS -->
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:13px;text-transform:uppercase;color:#0d9488;margin-bottom:6px;">Clinical Diagnosis:</h4>
+        <p style="font-size:14px;font-weight:600;" id="patientSlipDiagnosis">—</p>
+      </div>
+
+      <div style="font-size:26px;font-weight:900;color:#0d9488;margin-bottom:8px;">Rx</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;">
+        <thead>
+          <tr style="background:#f1f5f9;border-bottom:1px solid #cbd5e1;">
+            <th style="padding:8px 12px;text-align:left;">Medicine & Strength</th>
+            <th style="padding:8px 12px;text-align:left;">Dosage</th>
+            <th style="padding:8px 12px;text-align:left;">Frequency</th>
+            <th style="padding:8px 12px;text-align:left;">Duration</th>
+          </tr>
+        </thead>
+        <tbody id="patientSlipRxTbody">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+
+      <div style="border-top:1px dashed #cbd5e1;padding-top:16px;margin-bottom:40px;">
+        <h4 style="font-size:12px;color:#64748b;text-transform:uppercase;margin-bottom:4px;">Doctor's Advice & Instructions:</h4>
+        <p style="font-size:13px;" id="patientSlipAdvice">—</p>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding-top:30px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">
+        <p>Prescription validated for official medical use. MedSage Clinic Lahore.</p>
+        <div style="text-align:center;">
+          <div style="border-bottom:1px solid #000;width:160px;margin-bottom:6px;"></div>
+          <span>Doctor's Signature & Stamp</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN & Backend Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="patient.js"></script>
+</body>
+</html>

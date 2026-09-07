@@ -63,17 +63,37 @@ document.addEventListener('DOMContentLoaded', () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   });
 
-  // ── Scroll Reveal Animation ──
-  const revealElements = document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right');
-
-  function revealOnScroll() {
-    const windowHeight = window.innerHeight;
-    revealElements.forEach(el => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top < windowHeight * 0.88) {
-        el.classList.add('visible');
+  // ── Hero Scroll Down Click ──
+  const heroScrollIndicator = document.querySelector('.hero-scroll-indicator');
+  if (heroScrollIndicator) {
+    heroScrollIndicator.addEventListener('click', () => {
+      const targetSection = document.getElementById('about') || document.getElementById('services');
+      if (targetSection) {
+        targetSection.scrollIntoView({ behavior: 'smooth' });
       }
     });
+  }
+
+  // ── Scroll Reveal Animation (IntersectionObserver) ──
+  const revealElements = document.querySelectorAll('.reveal-up, .reveal-left, .reveal-right');
+
+  if ('IntersectionObserver' in window) {
+    const revealObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+          observer.unobserve(entry.target);
+        }
+      });
+    }, {
+      rootMargin: '0px 0px -40px 0px',
+      threshold: 0.08
+    });
+
+    revealElements.forEach(el => revealObserver.observe(el));
+  } else {
+    // Fallback for older browsers
+    revealElements.forEach(el => el.classList.add('visible'));
   }
 
   // ── Counter Animation ──
@@ -81,17 +101,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   function animateCounters() {
     if (countersAnimated) return;
-
-    const heroStats = document.querySelector('.hero-stats');
-    if (!heroStats) return;
-
-    const rect = heroStats.getBoundingClientRect();
-    if (rect.top > window.innerHeight || rect.bottom < 0) return;
-
     countersAnimated = true;
 
     statNums.forEach(num => {
-      const target = parseInt(num.getAttribute('data-target'), 10);
+      const target = parseInt(num.getAttribute('data-target'), 10) || 0;
       const duration = 2000;
       const start = performance.now();
 
@@ -113,6 +126,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  const heroStats = document.querySelector('.hero-stats');
+  if (heroStats && 'IntersectionObserver' in window) {
+    const statsObserver = new IntersectionObserver((entries, observer) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          animateCounters();
+          observer.unobserve(entry.target);
+        }
+      });
+    }, { threshold: 0.15 });
+    statsObserver.observe(heroStats);
+  } else {
+    animateCounters();
+  }
+
   // ── Unified Scroll Handler ──
   let ticking = false;
   window.addEventListener('scroll', () => {
@@ -121,8 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         handleNavScroll();
         highlightActiveLink();
         handleBackToTop();
-        revealOnScroll();
-        animateCounters();
         ticking = false;
       });
       ticking = true;
@@ -132,7 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
   // ── Initial calls ──
   handleNavScroll();
   highlightActiveLink();
-  revealOnScroll();
 
   // ── FAQ Accordion ──
   faqItems.forEach(item => {
@@ -155,67 +180,69 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   // ── Contact Form Submission (Connected to Supabase) ──
-  contactForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
+  if (contactForm) {
+    contactForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
 
-    const submitBtn = document.getElementById('submit-btn');
-    const originalHTML = submitBtn.innerHTML;
+      const submitBtn = document.getElementById('submit-btn');
+      const originalHTML = submitBtn.innerHTML;
 
-    const fullName = document.getElementById('name').value.trim();
-    const phone = document.getElementById('phone').value.trim();
-    const email = document.getElementById('email-input').value.trim();
-    const service = document.getElementById('service-select').value;
-    const message = document.getElementById('message').value.trim();
+      const fullName = document.getElementById('name').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const email = document.getElementById('email-input') ? document.getElementById('email-input').value.trim() : '';
+      const service = document.getElementById('service-select') ? document.getElementById('service-select').value : '';
+      const message = document.getElementById('message') ? document.getElementById('message').value.trim() : '';
 
-    // Loading state
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = `
-      <span style="display:flex;align-items:center;gap:8px;">
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite">
-          <circle cx="12" cy="12" r="10" opacity="0.25"/>
-          <path d="M12 2a10 10 0 0110 10"/>
-        </svg>
-        Saving to Backend...
-      </span>
-    `;
+      // Loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = `
+        <span style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite">
+            <circle cx="12" cy="12" r="10" opacity="0.25"/>
+            <path d="M12 2a10 10 0 0110 10"/>
+          </svg>
+          Saving to Backend...
+        </span>
+      `;
 
-    try {
-      let result = { success: true };
-      if (window.medsageBackend && typeof window.medsageBackend.submitAppointmentToSupabase === 'function') {
-        result = await window.medsageBackend.submitAppointmentToSupabase({
-          fullName,
-          phone,
-          email,
-          service,
-          message
-        });
+      try {
+        let result = { success: true };
+        if (window.medsageBackend && typeof window.medsageBackend.submitAppointmentToSupabase === 'function') {
+          result = await window.medsageBackend.submitAppointmentToSupabase({
+            fullName,
+            phone,
+            email,
+            service,
+            message
+          });
+        }
+
+        contactForm.style.display = 'none';
+        if (formSuccess) formSuccess.classList.add('show');
+
+        // Reset after 4 seconds
+        setTimeout(() => {
+          if (formSuccess) formSuccess.classList.remove('show');
+          contactForm.style.display = 'block';
+          contactForm.reset();
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }, 4000);
+      } catch (err) {
+        console.error('Submission failed:', err);
+        // Fallback display success to user
+        contactForm.style.display = 'none';
+        if (formSuccess) formSuccess.classList.add('show');
+        setTimeout(() => {
+          if (formSuccess) formSuccess.classList.remove('show');
+          contactForm.style.display = 'block';
+          contactForm.reset();
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = originalHTML;
+        }, 4000);
       }
-
-      contactForm.style.display = 'none';
-      formSuccess.classList.add('show');
-
-      // Reset after 4 seconds
-      setTimeout(() => {
-        formSuccess.classList.remove('show');
-        contactForm.style.display = 'block';
-        contactForm.reset();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHTML;
-      }, 4000);
-    } catch (err) {
-      console.error('Submission failed:', err);
-      // Fallback display success to user
-      contactForm.style.display = 'none';
-      formSuccess.classList.add('show');
-      setTimeout(() => {
-        formSuccess.classList.remove('show');
-        contactForm.style.display = 'block';
-        contactForm.reset();
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = originalHTML;
-      }, 4000);
-    }
-  });
+    });
+  }
 
   // ── Smooth scroll for all anchor links ──
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
@@ -232,8 +259,3 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
 });
-
-// Add spin keyframe dynamically for the loading spinner
-const style = document.createElement('style');
-style.textContent = `@keyframes spin { to { transform: rotate(360deg); } }`;
-document.head.appendChild(style);

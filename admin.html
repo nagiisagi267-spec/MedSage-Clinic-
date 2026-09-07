@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MedSage Clinic — Doctor & Admin Management Portal</title>
+  <meta name="description" content="Administrative and Clinical Management Portal for MedSage Clinic Doctors & Staff." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="admin.css" />
+</head>
+<body>
+
+  <!-- ===================== ADMIN LOGIN OVERLAY ===================== -->
+  <div class="admin-login-overlay" id="adminLoginOverlay">
+    <div class="login-box">
+      <div class="login-logo">🏥</div>
+      <h2>Doctor & Admin Portal</h2>
+      <p>Secure clinical management system for MedSage Clinic</p>
+
+      <form id="adminLoginForm">
+        <div class="form-field">
+          <label for="adminEmail" style="text-align:left;">Admin Email</label>
+          <input type="email" id="adminEmail" value="admin@medsageclinic.com" required autocomplete="username" />
+        </div>
+        <div class="form-field">
+          <label for="adminPassword" style="text-align:left;">Master Password</label>
+          <input type="password" id="adminPassword" value="MedSageAdmin2026!" required autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn-primary" style="width:100%;justify-content:center;margin-top:10px;" id="loginSubmitBtn">
+          <span>Authenticate & Open Portal</span>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+      </form>
+
+      <div class="login-credentials-hint">
+        <strong>Master Admin Credentials:</strong><br/>
+        Email: <code>admin@medsageclinic.com</code><br/>
+        Password: <code>MedSageAdmin2026!</code><br/>
+        <small style="color:var(--gray-600);display:block;margin-top:4px;">🔒 One-time Master Admin locked in PostgreSQL database</small>
+      </div>
+
+      <div style="margin-top:20px;">
+        <a href="index.html" style="font-size:0.85rem;color:var(--primary-700);font-weight:600;">← Back to Main Website</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MAIN APP LAYOUT ===================== -->
+  <div class="admin-layout" id="adminAppLayout" style="display:none;">
+
+    <!-- ── Sidebar ── -->
+    <aside class="admin-sidebar" id="adminSidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">⚕️</div>
+        <div class="brand-info">
+          <h2>MedSage</h2>
+          <span>Admin Portal</span>
+        </div>
+      </div>
+
+      <div class="sidebar-menu">
+        <div class="menu-category">Main Dashboard</div>
+        <button class="sidebar-btn active" data-tab="tab-overview">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span>Overview</span>
+        </button>
+        <button class="sidebar-btn" data-tab="tab-appointments">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <span>Appointments</span>
+          <span class="badge-pill" id="badgePendingCount">0</span>
+        </button>
+
+        <div class="menu-category">Clinical Management</div>
+        <button class="sidebar-btn" data-tab="tab-patients">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+          <span>Patients & History</span>
+        </button>
+        <button class="sidebar-btn" id="btnSidebarNewCheckup">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+          <span>+ Add New Checkup</span>
+        </button>
+
+        <div class="menu-category">Portals & Site</div>
+        <a href="patient.html" class="sidebar-btn" target="_blank">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          <span>Patient Portal View ↗</span>
+        </a>
+        <a href="index.html" class="sidebar-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          <span>Main Website ↗</span>
+        </a>
+      </div>
+
+      <div class="sidebar-footer">
+        <div class="user-snippet">
+          <div class="user-avatar" id="adminInitials">AK</div>
+          <div class="user-details">
+            <h5 id="adminDisplayName">Dr. Ahmad Khan</h5>
+            <p>Chief Medical Officer</p>
+          </div>
+        </div>
+        <button class="btn-logout" id="adminLogoutBtn" title="Log Out of Admin Panel">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        </button>
+      </div>
+    </aside>
+
+    <!-- ── Main Workspace ── -->
+    <main class="admin-main">
+
+      <!-- Header -->
+      <header class="main-header">
+        <div class="header-title">
+          <h1 id="pageTitle">Clinic Overview</h1>
+          <p id="pageSubTitle">Welcome back, Dr. Ahmad Khan. Real-time patient & consultation statistics.</p>
+        </div>
+        <div class="header-actions">
+          <div class="status-badge" id="backendStatusBadge">
+            <span class="status-dot"></span>
+            <span id="backendStatusText">Supabase Ready</span>
+          </div>
+          <button class="btn-primary" id="btnQuickNewCheckup">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Record Consultation</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- ── TAB 1: OVERVIEW ── -->
+      <section class="tab-pane active" id="tab-overview">
+        <!-- Stats Grid -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-card-icon icon-teal">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            </div>
+            <div class="stat-card-info">
+              <h4>Total Appointments</h4>
+              <div class="stat-number" id="statTotalAppointments">0</div>
+              <p>Submitted via web & clinic</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon icon-amber">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            </div>
+            <div class="stat-card-info">
+              <h4>Pending Action</h4>
+              <div class="stat-number" id="statPendingAppointments" style="color:var(--warning);">0</div>
+              <p>Awaiting confirmation</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon icon-blue">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/></svg>
+            </div>
+            <div class="stat-card-info">
+              <h4>Registered Patients</h4>
+              <div class="stat-number" id="statTotalPatients">0</div>
+              <p>With medical dossiers</p>
+            </div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-card-icon icon-green">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            </div>
+            <div class="stat-card-info">
+              <h4>Checkups Conducted</h4>
+              <div class="stat-number" id="statTotalCheckups">0</div>
+              <p>Diagnoses & prescriptions</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Appointments Card -->
+        <div class="content-card">
+          <div class="card-header-bar">
+            <div class="card-title-group">
+              <h3>Latest Appointment Requests</h3>
+              <p>Review and update patient bookings</p>
+            </div>
+            <button class="btn-secondary" id="btnGoToAppointments">View All Appointments →</button>
+          </div>
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient</th>
+                  <th>Service</th>
+                  <th>Preferred Date & Time</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="overviewAppointmentsTbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TAB 2: APPOINTMENTS ── -->
+      <section class="tab-pane" id="tab-appointments">
+        <div class="content-card">
+          <div class="card-header-bar">
+            <div class="card-title-group">
+              <h3>All Clinic Appointments</h3>
+              <p>Filter by status, search by patient details, or update booking status</p>
+            </div>
+            <div class="card-controls">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="appointmentSearchInput" placeholder="Search patient, phone, service..." />
+              </div>
+              <div class="filter-chips">
+                <button class="chip-btn active" data-filter="all">All</button>
+                <button class="chip-btn" data-filter="pending">Pending</button>
+                <button class="chip-btn" data-filter="confirmed">Confirmed</button>
+                <button class="chip-btn" data-filter="completed">Completed</button>
+                <button class="chip-btn" data-filter="cancelled">Cancelled</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient Name & Contact</th>
+                  <th>Service Needed</th>
+                  <th>Date & Time</th>
+                  <th>Patient Concern / Note</th>
+                  <th>Status</th>
+                  <th>Quick Actions</th>
+                </tr>
+              </thead>
+              <tbody id="appointmentsListTbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <!-- ── TAB 3: PATIENTS & HISTORY ── -->
+      <section class="tab-pane" id="tab-patients">
+        <div class="content-card">
+          <div class="card-header-bar">
+            <div class="card-title-group">
+              <h3>Patient Registry & Medical Records</h3>
+              <p>Access complete consultation history, previous checkups, vital signs, and prescriptions</p>
+            </div>
+            <div class="card-controls">
+              <div class="search-input-wrapper">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="patientSearchInput" placeholder="Search by name, phone, or blood group..." />
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Patient Information</th>
+                  <th>Age & Gender</th>
+                  <th>Blood Group</th>
+                  <th>Known Allergies</th>
+                  <th>Consultation History</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody id="patientsListTbody">
+                <!-- Dynamically populated -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- ===================== MODAL: PATIENT DOSSIER & FULL HISTORY ===================== -->
+  <div class="modal-backdrop" id="patientDossierModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <div style="display:flex;align-items:center;gap:12px;">
+          <div class="patient-avatar-mini" id="dossierAvatar" style="background:var(--primary-600);color:var(--white);">FA</div>
+          <div>
+            <h3 id="dossierName">Fatima Ali</h3>
+            <p style="font-size:0.8rem;color:rgba(255,255,255,0.7);" id="dossierMeta">Age: 28 | Female | Blood: B+ | Phone: +92 321 4567890</p>
+          </div>
+        </div>
+        <button class="modal-close-btn" id="btnCloseDossier">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+          <h4 style="font-size:1rem;color:var(--gray-800);">Previous Clinical Checkups & Consultation History</h4>
+          <button class="btn-primary" id="btnDossierAddCheckup" style="font-size:0.82rem;padding:8px 14px;">
+            + Add New Checkup Record
+          </button>
+        </div>
+
+        <div id="dossierCheckupsContainer" class="history-timeline">
+          <!-- Populated with checkup cards -->
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-secondary" id="btnCloseDossierBottom">Close Dossier</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===================== MODAL: RECORD NEW CHECKUP ===================== -->
+  <div class="modal-backdrop" id="newCheckupModal">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Record Clinical Checkup & Prescription</h3>
+        <button class="modal-close-btn" id="btnCloseCheckupModal">×</button>
+      </div>
+
+      <form id="checkupForm">
+        <div class="modal-body">
+          <div class="form-grid-2">
+            <div class="form-field">
+              <label for="checkupPatientSelect">Select Patient</label>
+              <select id="checkupPatientSelect" required>
+                <!-- Dynamically populated with registered patients -->
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="checkupDate">Date of Visit</label>
+              <input type="date" id="checkupDate" required />
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="checkupDiagnosis">Diagnosis / Clinical Impression *</label>
+            <input type="text" id="checkupDiagnosis" placeholder="e.g. Acute Bronchitis, Essential Hypertension Stage 1" required />
+          </div>
+
+          <div class="form-field">
+            <label for="checkupSymptoms">Presenting Symptoms / Chief Complaints</label>
+            <input type="text" id="checkupSymptoms" placeholder="e.g. Dry cough, low-grade fever for 3 days, chest tightness" />
+          </div>
+
+          <!-- Vital Signs Grid -->
+          <label style="font-size:0.82rem;font-weight:600;color:var(--gray-700);margin-bottom:6px;display:block;">Patient Vital Signs</label>
+          <div class="form-grid-4">
+            <div class="form-field">
+              <label for="vitalBP" style="font-size:0.75rem;">Blood Pressure</label>
+              <input type="text" id="vitalBP" placeholder="120/80" value="120/80" />
+            </div>
+            <div class="form-field">
+              <label for="vitalPulse" style="font-size:0.75rem;">Pulse / Heart Rate</label>
+              <input type="text" id="vitalPulse" placeholder="72 bpm" value="72 bpm" />
+            </div>
+            <div class="form-field">
+              <label for="vitalTemp" style="font-size:0.75rem;">Temperature</label>
+              <input type="text" id="vitalTemp" placeholder="98.6°F" value="98.6°F" />
+            </div>
+            <div class="form-field">
+              <label for="vitalWeight" style="font-size:0.75rem;">Weight</label>
+              <input type="text" id="vitalWeight" placeholder="70 kg" value="68 kg" />
+            </div>
+          </div>
+
+          <!-- Prescriptions Builder -->
+          <div class="prescriptions-builder">
+            <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+              <strong style="font-size:0.88rem;color:var(--gray-800);">Rx — Prescribed Medications</strong>
+              <button type="button" class="btn-secondary" id="btnAddMedicationRow" style="font-size:0.78rem;padding:4px 10px;">+ Add Medicine</button>
+            </div>
+
+            <div id="rxRowsContainer">
+              <!-- Medication row -->
+              <div class="rx-row">
+                <input type="text" placeholder="Medicine name & strength (e.g. Augmentin 625mg)" class="rx-name" required />
+                <input type="text" placeholder="Dosage (e.g. 1 tab)" class="rx-dosage" />
+                <input type="text" placeholder="Frequency (e.g. Twice daily after meals)" class="rx-frequency" />
+                <input type="text" placeholder="Duration (e.g. 7 days)" class="rx-duration" />
+                <button type="button" class="btn-remove-rx" title="Remove" onclick="this.parentElement.remove()">×</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-field">
+            <label for="checkupNotes">Doctor's Clinical Advice & Lifestyle Guidance</label>
+            <textarea id="checkupNotes" rows="3" placeholder="Dietary restrictions, fluid intake, rest instructions..."></textarea>
+          </div>
+
+          <div class="form-field">
+            <label for="checkupFollowUp">Recommended Follow-up Date (Optional)</label>
+            <input type="date" id="checkupFollowUp" />
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="btnCancelCheckup">Cancel</button>
+          <button type="submit" class="btn-primary" id="btnSaveCheckup">Save & Record Consultation</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- ===================== PRINTABLE PRESCRIPTION SLIP ===================== -->
+  <div id="printablePrescription" style="display:none;">
+    <div style="border:2px solid #0d9488;border-radius:12px;padding:30px;max-width:800px;margin:0 auto;font-family:'Inter',sans-serif;color:#1e293b;">
+      <div style="display:flex;align-items:center;justify-content:space-between;border-bottom:2px solid #0d9488;padding-bottom:16px;margin-bottom:20px;">
+        <div>
+          <h1 style="font-size:24px;color:#0d9488;margin-bottom:2px;">MEDSAGE CLINIC</h1>
+          <p style="font-size:12px;color:#64748b;">Karim Buksh Plaza, Lahore, Pakistan | Tel: +92 300 1234567 | info@medsageclinic.com</p>
+        </div>
+        <div style="text-align:right;">
+          <h3 style="font-size:15px;margin-bottom:2px;">Dr. Ahmad Khan</h3>
+          <p style="font-size:11px;color:#64748b;">MBBS, FCPS (Medicine)<br/>Chief Medical Officer</p>
+        </div>
+      </div>
+
+      <div style="background:#f0fdfa;padding:12px 16px;border-radius:8px;margin-bottom:20px;display:flex;justify-content:space-between;font-size:13px;" id="printPatientBar">
+        <!-- Filled by JS -->
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <h4 style="font-size:13px;text-transform:uppercase;color:#0d9488;margin-bottom:6px;">Clinical Diagnosis:</h4>
+        <p style="font-size:14px;font-weight:600;" id="printDiagnosis">—</p>
+      </div>
+
+      <div style="font-size:26px;font-weight:900;color:#0d9488;margin-bottom:8px;">Rx</div>
+      <table style="width:100%;border-collapse:collapse;margin-bottom:24px;font-size:13px;">
+        <thead>
+          <tr style="background:#f1f5f9;border-bottom:1px solid #cbd5e1;">
+            <th style="padding:8px 12px;text-align:left;">Medicine & Strength</th>
+            <th style="padding:8px 12px;text-align:left;">Dosage</th>
+            <th style="padding:8px 12px;text-align:left;">Frequency</th>
+            <th style="padding:8px 12px;text-align:left;">Duration</th>
+          </tr>
+        </thead>
+        <tbody id="printRxTbody">
+          <!-- Filled by JS -->
+        </tbody>
+      </table>
+
+      <div style="border-top:1px dashed #cbd5e1;padding-top:16px;margin-bottom:40px;">
+        <h4 style="font-size:12px;color:#64748b;text-transform:uppercase;margin-bottom:4px;">Doctor's Advice & Instructions:</h4>
+        <p style="font-size:13px;" id="printAdvice">—</p>
+      </div>
+
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;padding-top:30px;border-top:1px solid #e2e8f0;font-size:12px;color:#64748b;">
+        <p>Wish you a speedy recovery! For emergencies, visit MedSage Clinic directly.</p>
+        <div style="text-align:center;">
+          <div style="border-bottom:1px solid #000;width:160px;margin-bottom:6px;"></div>
+          <span>Doctor's Signature & Stamp</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Supabase CDN & Backend JS -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
