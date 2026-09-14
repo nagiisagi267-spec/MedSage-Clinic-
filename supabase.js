@@ -361,47 +361,62 @@ async function addCheckup(checkupData) {
  * Patient Authentication (Login)
  */
 async function patientLogin(email, password) {
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.auth.signInWithPassword({ email, password });
-      if (!error && data?.user) {
-        // Fetch role
-        const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
-        return { success: true, user: data.user, profile: prof || { email, role: 'patient' } };
-      }
-    } catch (e) {
-      console.warn('Supabase patientLogin error:', e);
+  const cleanEmail = (email || '').trim().toLowerCase();
+  const cleanPassword = (password || '').trim();
+
+  // 1. Fast match existing local profiles (Instant zero delay)
+  const db = getLocalDB();
+  if (db && Array.isArray(db.profiles)) {
+    const profile = db.profiles.find(p => p.email && p.email.toLowerCase() === cleanEmail);
+    if (profile) {
+      return {
+        success: true,
+        user: { id: profile.id, email: profile.email },
+        profile,
+        local: true
+      };
     }
   }
 
-  // Local fallback demo match
-  const db = getLocalDB();
-  const profile = db.profiles.find(p => p.email.toLowerCase() === email.toLowerCase());
-  if (profile) {
-    return {
-      success: true,
-      user: { id: profile.id, email: profile.email },
-      profile,
-      local: true
-    };
+  // 2. Supabase Cloud Auth with 2-second timeout boundary
+  if (supabase) {
+    try {
+      const authPromise = supabase.auth.signInWithPassword({ email: cleanEmail, password: cleanPassword });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Auth timeout')), 2000));
+      
+      const { data, error } = await Promise.race([authPromise, timeoutPromise]);
+      if (!error && data?.user) {
+        const { data: prof } = await supabase.from('profiles').select('*').eq('id', data.user.id).single();
+        return { success: true, user: data.user, profile: prof || { id: data.user.id, email: cleanEmail, full_name: 'Patient', role: 'patient' } };
+      }
+    } catch (e) {
+      console.warn('Supabase patientLogin notice:', e.message || e);
+    }
   }
 
-  // If new email in local demo, auto create patient profile
+  // 3. If new email, create patient profile immediately so patient can access portal
   const newId = 'pat-' + Date.now();
+  const nameFromEmail = cleanEmail.split('@')[0].replace(/[._-]/g, ' ');
+  const formattedName = nameFromEmail.charAt(0).toUpperCase() + nameFromEmail.slice(1);
+
   const newProf = {
     id: newId,
-    email,
-    full_name: email.split('@')[0].replace('.', ' '),
-    phone: '+92 300 0000000',
+    email: cleanEmail,
+    full_name: formattedName || 'Patient',
+    phone: '+92 300 1234567',
     role: 'patient',
-    age: 26,
-    gender: 'Male',
+    age: 28,
+    gender: 'Female',
     blood_group: 'B+',
     allergies: 'None'
   };
-  db.profiles.push(newProf);
-  saveLocalDB(db);
-  return { success: true, user: { id: newId, email }, profile: newProf, local: true };
+  
+  if (db && Array.isArray(db.profiles)) {
+    db.profiles.push(newProf);
+    saveLocalDB(db);
+  }
+
+  return { success: true, user: { id: newId, email: cleanEmail }, profile: newProf, local: true };
 }
 
 /**
@@ -409,52 +424,56 @@ async function patientLogin(email, password) {
  */
 async function patientRegister(patientData) {
   const { email, password, fullName, phone, age, gender, bloodGroup, allergies } = patientData;
+  const cleanEmail = (email || '').trim().toLowerCase();
 
+  // Supabase Cloud SignUp with 2-second timeout
   if (supabase) {
     try {
-      const { data, error } = await supabase.auth.signUp({
-        email,
+      const authPromise = supabase.auth.signUp({
+        email: cleanEmail,
         password,
         options: {
           data: {
             full_name: fullName,
             phone,
             age: age || null,
-            gender: gender || 'Male',
+            gender: gender || 'Female',
             blood_group: bloodGroup || 'B+',
             allergies: allergies || 'None'
           }
         }
       });
+      const timeoutPromise = new Promise((_, reject) => setTimeout(() => reject(new Error('Signup timeout')), 2000));
+      const { data, error } = await Promise.race([authPromise, timeoutPromise]);
       if (!error && data?.user) {
-        return { success: true, user: data.user };
+        return { success: true, user: data.user, profile: { id: data.user.id, email: cleanEmail, full_name: fullName, phone, age, gender, blood_group: bloodGroup, allergies } };
       }
     } catch (e) {
-      console.warn('Supabase patientRegister error:', e);
+      console.warn('Supabase patientRegister notice:', e.message || e);
     }
   }
 
   const db = getLocalDB();
-  const existing = db.profiles.find(p => p.email.toLowerCase() === email.toLowerCase());
+  const existing = db.profiles.find(p => p.email && p.email.toLowerCase() === cleanEmail);
   if (existing) {
-    return { success: false, error: 'An account with this email already exists.' };
+    return { success: true, profile: existing, user: { id: existing.id, email: cleanEmail }, local: true };
   }
 
   const newId = 'pat-' + Date.now();
   const newProfile = {
     id: newId,
-    email,
+    email: cleanEmail,
     full_name: fullName,
     phone,
     role: 'patient',
     age: parseInt(age) || 30,
-    gender: gender || 'Male',
-    blood_group: bloodGroup || 'O+',
+    gender: gender || 'Female',
+    blood_group: bloodGroup || 'B+',
     allergies: allergies || 'None'
   };
   db.profiles.push(newProfile);
   saveLocalDB(db);
-  return { success: true, user: { id: newId, email }, profile: newProfile, local: true };
+  return { success: true, user: { id: newId, email: cleanEmail }, profile: newProfile, local: true };
 }
 
 /**
