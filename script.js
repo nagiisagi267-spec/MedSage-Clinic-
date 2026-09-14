@@ -244,6 +244,21 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // ── Hero Quick Fast-Book Form Handler ──
+  const heroQuickBookForm = document.getElementById('heroQuickBookForm');
+  if (heroQuickBookForm) {
+    heroQuickBookForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const service = document.getElementById('quickService') ? document.getElementById('quickService').value : 'Consultation';
+      const name = document.getElementById('quickPatientName') ? document.getElementById('quickPatientName').value.trim() : '';
+      const phone = document.getElementById('quickPatientPhone') ? document.getElementById('quickPatientPhone').value.trim() : '';
+
+      const msg = `Hello MedSage Clinic Lahore! I want to book an instant appointment.\n\n*Service:* ${service}\n*Patient Name:* ${name}\n*Phone:* ${phone}\n\nPlease confirm doctor availability.`;
+      const encodedMsg = encodeURIComponent(msg);
+      window.open(`https://wa.me/923001234567?text=${encodedMsg}`, '_blank');
+    });
+  }
+
   // ── Smooth scroll for all anchor links ──
   document.querySelectorAll('a[href^="#"]').forEach(anchor => {
     anchor.addEventListener('click', (e) => {
